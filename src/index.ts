@@ -1,17 +1,19 @@
-import {
-  JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
+import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
+import { Widget } from '@lumino/widgets';
 
-/**
- * Initialization data for the myextension extension.
- */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'myextension:plugin',
-  description: 'A JupyterLab extension.',
+  id: 'instrument-labo',
   autoStart: true,
   activate: (app: JupyterFrontEnd) => {
-    console.log('JupyterLab extension myextension is activated!');
+    console.log('Osciloscopio activado');
+
+    const widget = new Widget();
+    widget.id = 'osciloscopio';
+    widget.title.label = 'Osciloscopio';
+    widget.title.closable = true;
+    widget.node.textContent = '¡Hola! Este es el osciloscopio';
+
+    app.shell.add(widget, 'right');
   }
 };
 
