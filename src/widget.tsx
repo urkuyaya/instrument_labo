@@ -9,39 +9,53 @@ import React, { useState, useEffect } from 'react';
 const OscilloscopeComponent = (): JSX.Element => {
     const [signal, setSignal] = useState<number[]>([]);
     const [running, setRunning] = useState<boolean>(false);
+    const [frequency, setFrequency] = useState<number>(1); // Frecuencia de la señal
 
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
 
         if (running) {
+            let time = 0; // Tiempo inicial
             interval = setInterval(() => {
-                setSignal(prev => [...prev.slice(-50), Math.random() * 10]); // Simular nuevos datos
-            }, 500);
+                time += 0.1; // Incrementa el tiempo en cada paso
+                const newSignal = Math.sin(2 * Math.PI * frequency * time); // Señal sinusoidal
+                setSignal(prev => [...prev.slice(-50), newSignal]); // Mantén los últimos 50 valores
+            }, 100); // Intervalo de actualización: 100 ms
         }
 
         return () => {
             if (interval) clearInterval(interval); // Limpia el intervalo al detenerse
         };
-    }, [running]);
+    }, [running, frequency]); // Reactualiza si cambia el estado o la frecuencia
 
     return (
         <div style={{ padding: '10px', fontFamily: 'Arial' }}>
+            {/* Contenedor de la señal */}
             <div
                 style={{
                     background: '#000',
                     color: '#0f0',
                     padding: '10px',
                     height: '150px',
-                    overflow: 'hidden',
+                    overflowY: 'scroll',
                     fontFamily: 'monospace'
                 }}
             >
                 {signal.map((point, index) => (
-                    <span key={index} style={{ display: 'inline-block', margin: '0 2px' }}>
-                        {Math.round(point)}
+                    <span
+                        key={index}
+                        style={{
+                            display: 'inline-block',
+                            margin: '0 2px',
+                            color: `rgb(0, ${Math.min(255, Math.abs(point * 255))}, 0)`
+                        }}
+                    >
+                        {point.toFixed(2)} {/* Redondea a dos decimales */}
                     </span>
                 ))}
             </div>
+
+            {/* Controles */}
             <div style={{ marginTop: '10px' }}>
                 <button
                     onClick={() => setRunning(true)}
@@ -70,6 +84,22 @@ const OscilloscopeComponent = (): JSX.Element => {
                 >
                     Stop
                 </button>
+            </div>
+
+            {/* Control de frecuencia */}
+            <div style={{ marginTop: '10px' }}>
+                <label style={{ color: '#fff', marginRight: '10px' }}>Frequency (Hz):</label>
+                <input
+                    type="number"
+                    value={frequency}
+                    onChange={e => setFrequency(parseFloat(e.target.value))}
+                    style={{
+                        padding: '5px',
+                        border: '1px solid #ccc',
+                        borderRadius: '5px',
+                        width: '50px'
+                    }}
+                />
             </div>
         </div>
     );
