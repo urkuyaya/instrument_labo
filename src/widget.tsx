@@ -3,57 +3,67 @@ import React, { useState, useEffect } from 'react';
 
 /**
  * React component for the Oscilloscope.
- *
- * @returns The React component
  */
 const OscilloscopeComponent = (): JSX.Element => {
     const [signal, setSignal] = useState<number[]>([]);
+    const [time, setTime] = useState<number[]>([]);
     const [running, setRunning] = useState<boolean>(false);
-    const [frequency, setFrequency] = useState<number>(1); // Frecuencia de la señal
+    const [frequency, setFrequency] = useState<number>(1);
 
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
 
         if (running) {
-            let time = 0; // Tiempo inicial
+            let t = time.length > 0 ? time[time.length - 1] : 0;
             interval = setInterval(() => {
-                time += 0.1; // Incrementa el tiempo en cada paso
-                const newSignal = Math.sin(2 * Math.PI * frequency * time); // Señal sinusoidal
-                setSignal(prev => [...prev.slice(-50), newSignal]); // Mantén los últimos 50 valores
-            }, 100); // Intervalo de actualización: 100 ms
+                t += 0.1; // Incrementa el tiempo
+                const newSignal = Math.sin(2 * Math.PI * frequency * t); // Señal sinusoidal
+                setSignal(prev => [...prev.slice(-50), newSignal]); // Últimos 50 puntos
+                setTime(prev => [...prev.slice(-50), t]); // Últimos 50 tiempos
+            }, 100);
         }
 
         return () => {
-            if (interval) clearInterval(interval); // Limpia el intervalo al detenerse
+            if (interval) clearInterval(interval); // Limpia el intervalo
         };
-    }, [running, frequency]); // Reactualiza si cambia el estado o la frecuencia
+    }, [running, frequency]);
+
+    // Dibuja la señal en el canvas
+    useEffect(() => {
+        const canvas = document.getElementById('oscilloscopeCanvas') as HTMLCanvasElement;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Limpia el canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Configuración del gráfico
+        ctx.strokeStyle = 'rgb(75, 192, 192)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        // Dibuja la señal
+        for (let i = 0; i < signal.length; i++) {
+            const x = (i / signal.length) * canvas.width; // Escala en X
+            const y = canvas.height / 2 - signal[i] * (canvas.height / 2); // Escala en Y
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+
+        ctx.stroke();
+    }, [signal]);
 
     return (
         <div style={{ padding: '10px', fontFamily: 'Arial' }}>
-            {/* Contenedor de la señal */}
-            <div
-                style={{
-                    background: '#000',
-                    color: '#0f0',
-                    padding: '10px',
-                    height: '150px',
-                    overflowY: 'scroll',
-                    fontFamily: 'monospace'
-                }}
-            >
-                {signal.map((point, index) => (
-                    <span
-                        key={index}
-                        style={{
-                            display: 'inline-block',
-                            margin: '0 2px',
-                            color: `rgb(0, ${Math.min(255, Math.abs(point * 255))}, 0)`
-                        }}
-                    >
-                        {point.toFixed(2)} {/* Redondea a dos decimales */}
-                    </span>
-                ))}
-            </div>
+            {/* Canvas para el gráfico */}
+            <canvas
+                id="oscilloscopeCanvas"
+                width="500"
+                height="200"
+                style={{ border: '1px solid #ccc', marginBottom: '10px' }}
+            ></canvas>
 
             {/* Controles */}
             <div style={{ marginTop: '10px' }}>
@@ -88,7 +98,7 @@ const OscilloscopeComponent = (): JSX.Element => {
 
             {/* Control de frecuencia */}
             <div style={{ marginTop: '10px' }}>
-                <label style={{ color: '#fff', marginRight: '10px' }}>Frequency (Hz):</label>
+                <label style={{ color: '#000', marginRight: '10px' }}>Frecuencia (Hz):</label>
                 <input
                     type="number"
                     value={frequency}
@@ -106,12 +116,12 @@ const OscilloscopeComponent = (): JSX.Element => {
 };
 
 /**
- * Lumino Widget wrapping the OscilloscopeComponent
+ * Lumino Widget wrapping the OscilloscopeComponent.
  */
 export class OscilloscopeWidget extends ReactWidget {
     constructor() {
         super();
-        this.addClass('jp-OscilloscopeWidget'); // Clase para personalización CSS
+        this.addClass('jp-OscilloscopeWidget');
     }
 
     render(): JSX.Element {
