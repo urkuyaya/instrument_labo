@@ -1,0 +1,41 @@
+.oscilloscope-container {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: Arial, sans-serif;
+}
+
+.oscilloscope-display {
+    background-color: black;
+    border: 1px solid #ccc;
+    height: 200px;
+    width: 100%;
+}
+
+.oscilloscope-controls {
+    display: flex;
+    justify-content: space-around;
+}
+
+.oscilloscope-button {
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.oscilloscope-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.oscilloscope-config-button {
+    align-self: flex-end;
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: #007acc;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
