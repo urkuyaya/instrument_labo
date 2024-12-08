@@ -3,8 +3,7 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
-import { Widget } from '@lumino/widgets';
-
+import { reactIcon } from '@jupyterlab/ui-components';
 import { OscilloscopeWidget } from './widget';
 
 /**
@@ -14,18 +13,18 @@ const extension: JupyterFrontEndPlugin<void> = {
   id: 'oscilloscope-widget',
   autoStart: true,
   activate: (app: JupyterFrontEnd) => {
-    console.log('Oscilloscope Widget Extension is activated!'); // Diagnóstico
+    console.log('Oscilloscope Widget Activated');
 
-    // Crear el widget React para el osciloscopio
-    const content = new OscilloscopeWidget();
-    const widget = new Widget();
-    widget.node.appendChild(content.node);
-    widget.id = 'oscilloscope-panel';
-    widget.title.label = 'Oscilloscope';
-    widget.title.closable = true;
+    // Crear el widget para la barra derecha
+    const widget = new OscilloscopeWidget();
+    widget.id = 'oscilloscope-widget'; // ID único para el widget
+    widget.title.icon = reactIcon; // Icono
+    widget.title.caption = 'Oscilloscope'; // Descripción
 
-    // Agregar el widget a la barra lateral derecha
+    // Añadir el widget a la barra lateral derecha
     app.shell.add(widget, 'right');
+
+    console.log('Oscilloscope Widget added to the right sidebar.');
   }
 };
 
